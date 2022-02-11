@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 
 
-def conv0(in_features):
-    out_features = 64
+def conv0(in_features, out_features = 64):
     return nn.ModuleList([
         nn.Conv2d(
             in_channels=in_features,
@@ -18,223 +17,92 @@ def conv0(in_features):
     ])
 
 
-def conv1_x(first_layer=True):
-    interm_features = 64
-
-    if first_layer:
-        skip_module = nn.ModuleList([
-            nn.Conv2d(in_channels=interm_features,
-                out_channels=4*interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(4*interm_features)])
-    else:
-        skip_module = nn.ModuleList([nn.Identity()])
-
+def conv_x(in_features, mid_features, out_features):
     return nn.ModuleList([
             nn.Conv2d(
-                in_channels=interm_features if first_layer else 4*interm_features,
-                out_channels=interm_features,
+                in_channels=in_features,
+                out_channels=mid_features,
                 kernel_size=1,
                 stride=1,
                 padding=0,
                 bias=False),
-            nn.BatchNorm2d(interm_features),
+            nn.BatchNorm2d(mid_features),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=interm_features,
+            nn.Conv2d(in_channels=mid_features,
+                  out_channels=mid_features,
                   kernel_size=3,
                   stride=1,
                   padding=1,
                   bias=False),
-            nn.BatchNorm2d(interm_features),
+            nn.BatchNorm2d(mid_features),
             nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=4*interm_features,
+            nn.Conv2d(in_channels=mid_features,
+                  out_channels=out_features,
                   kernel_size=1,
                   stride=1,
                   padding=0,
                   bias=False),
-            nn.BatchNorm2d(4*interm_features)
-        ]), skip_module
+            nn.BatchNorm2d(out_features)
+        ])
 
 
-def conv2_x(first_layer=True):
-    interm_features = 128
-
-    if first_layer:
-        skip_module = nn.ModuleList([
-            nn.Conv2d(in_channels=interm_features,
-                out_channels=4*interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(4*interm_features)])
-    else:
-        skip_module = nn.ModuleList([nn.Identity()])
-
+def skip_x(in_features, out_features):
     return nn.ModuleList([
-            nn.Conv2d(
-                in_channels=interm_features if first_layer else 4*interm_features,
-                out_channels=interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=interm_features,
-                  kernel_size=3,
-                  stride=1,
-                  padding=1,
-                  bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=4*interm_features,
+            nn.Conv2d(in_channels=in_features,
+                  out_channels=out_features,
                   kernel_size=1,
                   stride=1,
                   padding=0,
                   bias=False),
-            nn.BatchNorm2d(4*interm_features)
-        ]), skip_module
-
-
-def conv3_x(first_layer=True):
-    interm_features = 256
-
-    if first_layer:
-        skip_module = nn.ModuleList([
-            nn.Conv2d(in_channels=interm_features,
-                out_channels=4*interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(4*interm_features)])
-    else:
-        skip_module = nn.ModuleList([nn.Identity()])
-
-    return nn.ModuleList([
-            nn.Conv2d(
-                in_channels=interm_features if first_layer else 4*interm_features,
-                out_channels=interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=interm_features,
-                  kernel_size=3,
-                  stride=1,
-                  padding=1,
-                  bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=4*interm_features,
-                  kernel_size=1,
-                  stride=1,
-                  padding=0,
-                  bias=False),
-            nn.BatchNorm2d(4*interm_features)
-        ]), skip_module
-
-
-def conv4_x(first_layer=True):
-    interm_features = 512
-
-    if first_layer:
-        skip_module = nn.ModuleList([
-            nn.Conv2d(in_channels=interm_features,
-                out_channels=4*interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(4*interm_features)])
-    else:
-        skip_module = nn.ModuleList([nn.Identity()])
-
-    return nn.ModuleList([
-            nn.Conv2d(
-                in_channels=interm_features if first_layer else 4*interm_features,
-                out_channels=interm_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=interm_features,
-                  kernel_size=3,
-                  stride=1,
-                  padding=1,
-                  bias=False),
-            nn.BatchNorm2d(interm_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=interm_features,
-                  out_channels=4*interm_features,
-                  kernel_size=1,
-                  stride=1,
-                  padding=0,
-                  bias=False),
-            nn.BatchNorm2d(4*interm_features)
-        ]), skip_module
+            nn.BatchNorm2d(out_features)
+        ])
 
 
 class ResNet50(nn.Module):
     def __init__(self, num_channels=3):
         super(ResNet50, self).__init__()
 
-        self.layers = nn.ModuleList()
+        self.blocks = nn.ModuleList()
         self.skip_layers = nn.ModuleList()
-        layer_funcs = [conv1_x, conv2_x, conv3_x, conv4_x]
-        layer_repeats = [3, 4, 6, 3]
+        block_repeats_lis = [3, 4, 6, 3]
+        in_features_lis = [64, 256, 512, 1024]
+        mid_features_lis = [64, 128, 256, 512]
+        scale = 4
 
-        self.layers.append(conv0(num_channels))
-        self.skip_layers.append(None)
+        self.conv0_block = conv0(num_channels)
 
-        for f, r in zip(layer_funcs, layer_repeats):
-            print("create block")
-            layer, skip_layer = f()
-            self.layers.append(layer)
-            self.skip_layers.append(skip_layer)
-            for i in range(r-1):
-                print("create block")
-                interm_layer, interm_skip_layer = f(False)
-                self.layers.append(interm_layer)
-                self.skip_layers.append(interm_skip_layer)
+        for repeat, in_features, mid_features in zip(block_repeats_lis, in_features_lis, mid_features_lis):
+            self.blocks.append(conv_x(in_features, mid_features, scale*mid_features))
+            self.skip_layers.append(skip_x(in_features, scale*mid_features))
+            for i in range(repeat):
+                self.blocks.append(conv_x(scale*mid_features, mid_features, scale*mid_features))
+                self.skip_layers.append(nn.ModuleList([nn.Identity()]))
 
     def forward(self, x):
         x_ = x
 
-        print("num layers = " + str(len(self.layers)))
-        for layer, skip_layer in zip(self.layers, self.skip_layers):
+        for module in self.conv0_block:
+            x_ = module(x_)
+
+        print("num layers = " + str(len(self.blocks)))
+        for block, skip_layer in zip(self.blocks, self.skip_layers):
             print("layer, x_.shape = " + str(x_.shape))
 
             interm_x_ = x_.clone()
-            for module in layer:
+
+            for module in block:
                 print("module")
                 interm_x_ = module(interm_x_)
                 print(" shape = " + str(interm_x_.shape))
 
-            x_ = interm_x_
+            skip_x_ = x_.clone()
 
-            if skip_layer:
-                skip_x_ = x_.clone()
-                for skip_module in skip_layer:
-                    skip_x_ = skip_module(skip_x_)
-                x_ += skip_x_
+            for skip_module in skip_layer:
+                skip_x_ = skip_module(skip_x_)
 
-        return x
+            x_ = interm_x_ + skip_x_
+
+        return x_
 
 
 if __name__ == "__main__":
