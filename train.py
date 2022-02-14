@@ -23,22 +23,14 @@ LOAD_MODEL_LOC = None
 
 # a training loop that runs a number of training epochs on a model
 def train(model, loss_function, optimizer, train_loader, validation_loader):
-    model_metric_scores = {"accuracy": [], "f1": []}
-
     for epoch in range(NUMBER_OF_EPOCHS):
         model.train()
         progress = tqdm(train_loader)
 
-        running_loss = 0.0
         # get the inputs; data is a list of [x, y]
         for i, (x, y) in enumerate(progress):
             # https://stackoverflow.com/a/58677827
             x = nnf.interpolate(x, size=(224, 224), mode='bicubic', align_corners=False)
-
-            # plt.figure(figsize=(10, 10), dpi=100)
-            # plt.imshow(x.detach().squeeze().numpy().T)
-            # plt.title(i)
-            # plt.show()
 
             x = x.to(DEVICE)
             y = y.to(DEVICE)
@@ -47,7 +39,6 @@ def train(model, loss_function, optimizer, train_loader, validation_loader):
             optimizer.zero_grad()
 
             x_ = model(x)
-            # print("x_ = " + str(np.argmax(x_.detach().cpu().numpy(), axis=1)) + ", y = " + str(y.detach().cpu().numpy()))
             loss = loss_function(x_, y)
 
             # make the progress bar display loss
