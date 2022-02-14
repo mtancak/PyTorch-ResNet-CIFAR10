@@ -14,11 +14,12 @@ from model import ResNet50
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LEARNING_RATE = 0.0001
-BATCH_SIZE = 1
+BATCH_SIZE = 32
 NUMBER_OF_EPOCHS = 100
 SAVE_EVERY_X_EPOCHS = 1
 SAVE_MODEL_LOC = "./model_"
 LOAD_MODEL_LOC = None
+
 
 # a training loop that runs a number of training epochs on a model
 def train(model, loss_function, optimizer, train_loader, validation_loader):
@@ -40,16 +41,13 @@ def train(model, loss_function, optimizer, train_loader, validation_loader):
             # plt.show()
 
             x = x.to(DEVICE)
-            print(x.dtype)
-
             y = y.to(DEVICE)
 
             # zero the parameter gradients
             optimizer.zero_grad()
 
-            # forward + backward + optimize
             x_ = model(x)
-            print("x_ = " + str(x_.detach().cpu().numpy()) + ", y = " + str(y.detach().cpu().numpy()))
+            # print("x_ = " + str(np.argmax(x_.detach().cpu().numpy(), axis=1)) + ", y = " + str(y.detach().cpu().numpy()))
             loss = loss_function(x_, y)
 
             # make the progress bar display loss
@@ -60,6 +58,19 @@ def train(model, loss_function, optimizer, train_loader, validation_loader):
             optimizer.step()
 
         model.eval()
+        progress = tqdm(validation_loader)
+        correct = 0
+        total = 0
+        for i, (x, y) in enumerate(progress):
+            x = nnf.interpolate(x, size=(224, 224), mode='bicubic', align_corners=False)
+
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+
+            x_ = model(x)
+            correct += torch.sum(torch.argmax(x_, dim=1) == y).item()
+            total += x_.shape[0]
+        print("Validation accuracy = " + str(((correct * 100.0) / total)) + "% = " + str(correct) + "/" + str(total))
 
 
 if __name__ == "__main__":
@@ -80,7 +91,7 @@ if __name__ == "__main__":
 
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1,
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                               shuffle=True, num_workers=2)
 
     testset = torchvision.datasets.CIFAR10(root='./data', train=False,
