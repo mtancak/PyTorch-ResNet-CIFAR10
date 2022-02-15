@@ -3,7 +3,7 @@ import torch.nn as nn
 from torchsummary import summary
 
 
-def conv0(in_features, out_features = 64):
+def conv0(in_features, out_features=64):
     return nn.ModuleList([
         nn.Conv2d(
             in_channels=in_features,
@@ -20,43 +20,43 @@ def conv0(in_features, out_features = 64):
 
 def conv_x(in_features, mid_features, out_features, final_stride=1):
     return nn.ModuleList([
-            nn.Conv2d(
-                in_channels=in_features,
-                out_channels=mid_features,
-                kernel_size=1,
-                stride=1,
-                padding=0,
-                bias=False),
-            nn.BatchNorm2d(mid_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=mid_features,
+        nn.Conv2d(
+            in_channels=in_features,
+            out_channels=mid_features,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=False),
+        nn.BatchNorm2d(mid_features),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(in_channels=mid_features,
                   out_channels=mid_features,
                   kernel_size=3,
                   stride=1,
                   padding=1,
                   bias=False),
-            nn.BatchNorm2d(mid_features),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(in_channels=mid_features,
+        nn.BatchNorm2d(mid_features),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(in_channels=mid_features,
                   out_channels=out_features,
                   kernel_size=1,
                   stride=final_stride,
                   padding=0,
                   bias=False),
-            nn.BatchNorm2d(out_features)
-        ])
+        nn.BatchNorm2d(out_features)
+    ])
 
 
 def skip_x(in_features, out_features, final_stride=1):
     return nn.ModuleList([
-            nn.Conv2d(in_channels=in_features,
+        nn.Conv2d(in_channels=in_features,
                   out_channels=out_features,
                   kernel_size=1,
                   stride=final_stride,
                   padding=0,
                   bias=False),
-            nn.BatchNorm2d(out_features)
-        ])
+        nn.BatchNorm2d(out_features)
+    ])
 
 
 class ResNet50(nn.Module):
@@ -79,20 +79,22 @@ class ResNet50(nn.Module):
         self.conv0_block = conv0(num_channels)
 
         for repeat, in_features, mid_features in zip(block_repeats_lis, in_features_lis, mid_features_lis):
-            self.blocks.append(conv_x(in_features, mid_features, scale*mid_features))
-            self.skip_layers.append(skip_x(in_features, scale*mid_features))
+            self.blocks.append(conv_x(in_features, mid_features, scale * mid_features))
+            self.skip_layers.append(skip_x(in_features, scale * mid_features))
             self.relu_layers.append(nn.ReLU(inplace=True))
-            for i in range(repeat-2):
-                self.blocks.append(conv_x(scale*mid_features, mid_features, scale*mid_features, final_stride=1))
+            for i in range(repeat - 2):
+                self.blocks.append(conv_x(scale * mid_features, mid_features, scale * mid_features, final_stride=1))
                 self.skip_layers.append(nn.ModuleList([nn.Identity()]))
                 self.relu_layers.append(nn.ReLU(inplace=True))
-            self.blocks.append(conv_x(scale*mid_features, mid_features, scale*mid_features, final_stride=2))
-            self.skip_layers.append(skip_x(mid_features*scale, mid_features*scale, final_stride=2))
+            self.blocks.append(conv_x(scale * mid_features, mid_features, scale * mid_features, final_stride=2))
+            self.skip_layers.append(skip_x(mid_features * scale, mid_features * scale, final_stride=2))
             self.relu_layers.append(nn.ReLU(inplace=True))
 
-        self.latent_representation_size = int(2048 * 4 * 4)
+        flat_image_size = mid_features_lis[-1] * scale
 
-        self.classifier_block.append(nn.Linear(self.latent_representation_size, 1000))
+        self.classifier_block.append(nn.AdaptiveAvgPool2d((1, 1)))
+        self.classifier_block.append(nn.Flatten(start_dim=1))
+        self.classifier_block.append(nn.Linear(flat_image_size, 1000))
         self.classifier_block.append(nn.Linear(1000, self.classes))
         self.classifier_block.append(nn.Softmax(dim=1))
 
@@ -116,8 +118,6 @@ class ResNet50(nn.Module):
             x_ = interm_x_ + skip_x_
 
             x_ = relu(x_)
-
-        x_ = x_.reshape((x_.shape[0], torch.prod(torch.tensor(x_.shape)[1:])))
 
         for layer in self.classifier_block:
             x_ = layer(x_)
