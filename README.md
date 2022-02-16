@@ -3,6 +3,8 @@
 
 *Run train.py to run the model*
 
+*To-Do: Add support for more ResNet variations, drop off, transformations, etc.*
+
 ***Work in progress***
 
 The paper on residual learning, which introduced a CNN architecture known as ResNet (https://arxiv.org/pdf/1512.03385.pdf), is a popular classic paper that has led to a large-scale adoption of residual "skip" connections in deep neural networks.
