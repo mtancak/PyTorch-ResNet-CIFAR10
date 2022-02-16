@@ -16,11 +16,11 @@ from model import ResNet50
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LEARNING_RATE = 0.0001
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 NUMBER_OF_EPOCHS = 1000
 SAVE_EVERY_X_EPOCHS = 1
-SAVE_MODEL_LOC = "./model_spy_"
-LOAD_MODEL_LOC = None
+SAVE_MODEL_LOC = "./save_"
+LOAD_MODEL_LOC = "./example_parameters"
 
 
 # a training loop that runs a number of training epochs on a model
