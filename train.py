@@ -15,7 +15,7 @@ from tqdm import tqdm
 from model import ResNet50
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 BATCH_SIZE = 64
 NUMBER_OF_EPOCHS = 1000
 SAVE_EVERY_X_EPOCHS = 1
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     loss_function = nn.CrossEntropyLoss()
     # optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=0.9)
 
     # used defaults from pytorch tutorial as it was https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     transform = transforms.Compose(
