@@ -20,7 +20,7 @@ BATCH_SIZE = 64
 NUMBER_OF_EPOCHS = 1000
 SAVE_EVERY_X_EPOCHS = 1
 SAVE_MODEL_LOC = "./save_"
-LOAD_MODEL_LOC = "./example_parameters"
+LOAD_MODEL_LOC = None
 
 
 # a training loop that runs a number of training epochs on a model
